@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">LiveData_Samples</string>
+    <string name="simple_live_data">Simple Live Data</string>
+    <string name="live_data_with_room">Live Data With Room</string>
+    <string name="live_data_room_retrofit">Live Data + Room + Retrofit</string>
+</resources>
