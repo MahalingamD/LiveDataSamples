@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.maha.livedata.R
 import com.maha.livedata.adapter.SimpleItemsAdapter
-import com.maha.livedata.databinding.ActivitySimpleLiveDataBinding
-import kotlinx.android.synthetic.main.activity_simple_live_data.*
+import com.maha.livedata.databinding.SimpleLiveDataActivityBinding
+import kotlinx.android.synthetic.main.simple_live_data_activity.*
 
 class SimpleLiveDataActivity : AppCompatActivity() {
 
@@ -18,20 +18,20 @@ class SimpleLiveDataActivity : AppCompatActivity() {
 
     private var mSimpleItemsAdapter: SimpleItemsAdapter? = null
 
-    private lateinit var binding: ActivitySimpleLiveDataBinding
+    private lateinit var binding: SimpleLiveDataActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_simple_live_data)
+        binding = DataBindingUtil.setContentView(this, R.layout.simple_live_data_activity)
         binding.lifecycleOwner = this
-
-        init()
 
         mSimpleViewModel = ViewModelProviders.of(this).get(SimpleViewModel::class.java)
         mSimpleViewModel!!.fetchItem().observe(this, Observer {
-
+            mSimpleItemsAdapter!!.update(it)
         })
+
+        init()
 
         binding.root
     }
@@ -47,6 +47,13 @@ class SimpleLiveDataActivity : AppCompatActivity() {
         simpleRecyclerView.hasFixedSize()
         simpleRecyclerView.adapter = mSimpleItemsAdapter
         simpleRecyclerView.addItemDecoration(DividerItemDecoration(this, layoutManager.orientation))
+
+
+        simpleRecyclerView.endless {  mSimpleViewModel!!.fetchItem() }
+       // mSimpleViewModel!!.fetchItem()
+        mSimpleItemsAdapter!!.update(mSimpleViewModel!!.loadData())
+
+        binding.viewModel = mSimpleViewModel
 
     }
 }

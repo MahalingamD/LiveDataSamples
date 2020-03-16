@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 
 class SimpleViewModel : ViewModel() {
 
-    private val list = mutableListOf<String>()
+     val list = mutableListOf<String>()
     private val repository = ItemsRepository()
 
     private val handler = Handler()
@@ -23,7 +23,6 @@ class SimpleViewModel : ViewModel() {
 
     fun fetchItem(): MutableLiveData<List<String>> {
 
-
         handler.postDelayed({
 
             val position = list.size
@@ -33,6 +32,12 @@ class SimpleViewModel : ViewModel() {
         }, delay)
 
         return _items
+    }
+
+    fun loadData(): MutableList<String> {
+        val newItems = repository.getItemsPage()
+        list.addAll(newItems)
+        return list
     }
 
 }
