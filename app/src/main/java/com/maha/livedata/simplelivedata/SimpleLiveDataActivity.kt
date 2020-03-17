@@ -27,13 +27,11 @@ class SimpleLiveDataActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         mSimpleViewModel = ViewModelProviders.of(this).get(SimpleViewModel::class.java)
-        mSimpleViewModel!!.fetchItem().observe(this, Observer {
-            mSimpleItemsAdapter!!.update(it)
-        })
+
 
         init()
 
-        binding.root
+        //binding.root
     }
 
     private fun init() {
@@ -49,11 +47,20 @@ class SimpleLiveDataActivity : AppCompatActivity() {
         simpleRecyclerView.addItemDecoration(DividerItemDecoration(this, layoutManager.orientation))
 
 
-        simpleRecyclerView.endless {  mSimpleViewModel!!.fetchItem() }
-       // mSimpleViewModel!!.fetchItem()
-        mSimpleItemsAdapter!!.update(mSimpleViewModel!!.loadData())
+        simpleRecyclerView.endless {  mSimpleViewModel!!.fetchItems() }
+
+        mSimpleViewModel!!.addItems.subscribe(this) {
+            simpleRecyclerView.adapter?.notifyItemRangeInserted(data.positionStart, data.count)
+        }
+        mSimpleViewModel!!.removeItem.subscribe(this) {
+            simpleRecyclerView.adapter?.notifyItemRemoved(data)
+        }
 
         binding.viewModel = mSimpleViewModel
+       // mSimpleViewModel!!.fetchItem()
+       // mSimpleItemsAdapter!!.update(mSimpleViewModel!!.loadData())
+
+
 
     }
 }

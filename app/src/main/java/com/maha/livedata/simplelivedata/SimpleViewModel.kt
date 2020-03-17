@@ -5,39 +5,75 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
+data class Page(val positionStart: Int, val count: Int)
+
 class SimpleViewModel : ViewModel() {
 
-     val list = mutableListOf<String>()
     private val repository = ItemsRepository()
+    private val list = mutableListOf<String>()
+
+    private val _items = MutableLiveData<List<String>>().apply { value = list }
+    private val _addItems = MutableLiveData<Event<Page>>()
+    private val _removeItem = MutableLiveData<Event<Int>>()
 
     private val handler = Handler()
 
     private var loading = false
 
-    private var delay = 3000L
-
-    private val _items = MutableLiveData<List<String>>().apply { value = list }
+    private var delay = 0L
 
     val items: LiveData<List<String>>
         get() = _items
 
-    fun fetchItem(): MutableLiveData<List<String>> {
+    val addItems: LiveData<Event<Page>>
+        get() = _addItems
 
-        handler.postDelayed({
+    val removeItem: LiveData<Event<Int>>
+        get() = _removeItem
 
-            val position = list.size
-            val newItems = repository.getItemsPage()
-            list.addAll(newItems)
-            loading = false
-        }, delay)
-
-        return _items
+    init {
+        fetchItems()
     }
 
-    fun loadData(): MutableList<String> {
-        val newItems = repository.getItemsPage()
-        list.addAll(newItems)
-        return list
+    fun fetchItems() {
+        if (!loading) {
+            loading = true
+
+            showLoading()
+
+            // Simulate delay
+
+            handler.postDelayed({
+
+                val position = list.size
+                val newItems = repository.getItemsPage()
+                list.addAll(newItems)
+
+                addItems(position, newItems.size)
+                removeLoading(position-1)
+
+                delay = if (delay == 0L) 3000 else 0
+                loading = false
+            }, delay)
+        }
+    }
+
+    private fun showLoading() {
+        list.add("loading")
+        addItems(list.size - 1, 1)
+    }
+
+    private fun removeLoading(position: Int) {
+        list.removeAt(position)
+        removeItems(position)
+    }
+
+    private fun addItems(positionStart: Int, count: Int) {
+        _addItems.value = Event(Page(positionStart, count))
+    }
+
+    private fun removeItems(positionStart: Int) {
+        _removeItem.value = Event(positionStart)
     }
 
 }
